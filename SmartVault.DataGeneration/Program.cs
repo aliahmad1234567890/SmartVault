@@ -1,4 +1,4 @@
-﻿using Dapper;
+﻿ using Dapper;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using SmartVault.Library;
@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.IO;
+using System.Text;
 using System.Xml.Serialization;
 
 namespace SmartVault.DataGeneration
@@ -31,21 +32,24 @@ namespace SmartVault.DataGeneration
                     connection.Execute(businessObject?.Script);
 
                 }
+
+                var sb = new StringBuilder();
                 var documentNumber = 0;
                 for (int i = 0; i < 100; i++)
                 {
                     var randomDayIterator = RandomDay().GetEnumerator();
                     randomDayIterator.MoveNext();
-                    connection.Execute($"INSERT INTO User (Id, FirstName, LastName, DateOfBirth, AccountId, Username, Password) VALUES('{i}','FName{i}','LName{i}','{randomDayIterator.Current.ToString("yyyy-MM-dd")}','{i}','UserName-{i}','e10adc3949ba59abbe56e057f20f883e')");
-                    connection.Execute($"INSERT INTO Account (Id, Name) VALUES('{i}','Account{i}')");
+                    sb.Append($"INSERT INTO User (Id, FirstName, LastName, DateOfBirth, AccountId, Username, Password) VALUES('{i}','FName{i}','LName{i}','{randomDayIterator.Current.ToString("yyyy-MM-dd")}','{i}','UserName-{i}','e10adc3949ba59abbe56e057f20f883e')");
+                    sb.Append($"INSERT INTO Account (Id, Name) VALUES('{i}','Account{i}')");
 
                     for (int d = 0; d < 10000; d++, documentNumber++)
                     {
                         var documentPath = new FileInfo("TestDoc.txt").FullName;
-                        connection.Execute($"INSERT INTO Document (Id, Name, FilePath, Length, AccountId) VALUES('{documentNumber}','Document{i}-{d}.txt','{documentPath}','{new FileInfo(documentPath).Length}','{i}')");
+                        sb.Append($"INSERT INTO Document (Id, Name, FilePath, Length, AccountId) VALUES('{documentNumber}','Document{i}-{d}.txt','{documentPath}','{new FileInfo(documentPath).Length}','{i}')");
                     }
                 }
 
+                connection.Execute(sb.ToString());
                 var accountData = connection.Query("SELECT COUNT(*) FROM Account;");
                 Console.WriteLine($"AccountCount: {JsonConvert.SerializeObject(accountData)}");
                 var documentData = connection.Query("SELECT COUNT(*) FROM Document;");

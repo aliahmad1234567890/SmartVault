@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<businessObject>
+	<propertyGroup>
+		<property name="Provider" type="string" />
+		<property name="ClientId" type="string" />
+		<property name="ClientSecret" type="string" />
+		<property name="Scopes" type="string" />
+	</propertyGroup>
+	<script>
+		CREATE TABLE OAuthIntegration (
+		Id INTEGER PRIMARY KEY AUTOINCREMENT,
+		Provider TEXT NOT NULL,
+		ClientId TEXT NOT NULL,
+		ClientSecret TEXT NOT NULL,
+		Scopes TEXT NOT NULL
+		);
+	</script>
+</businessObject>
